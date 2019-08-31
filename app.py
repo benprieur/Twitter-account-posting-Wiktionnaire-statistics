@@ -1,92 +1,95 @@
 import pywikibot
 from pywikibot import pagegenerators
 import tweepy
-import datetime
-import time
+from datetime import date
 
 def GetWiktionaryData():
+
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(access_token, access_token_secret)
     api = tweepy.API(auth)
     print (api.me().name)
     siteWiktionnaire = pywikibot.Site('fr', u'wiktionary')
+    print(siteWiktionnaire)
+
     elapse = True
+    MESSAGE = ""
+    nbcreation = 0
+
     while True:
         try:
-            nbedit = 0
-            nbeditPrincipal = 0
-            nbcreation = 0
 
             if elapse == True:
 
                 str_end = siteWiktionnaire.getcurrenttimestamp()
                 end = int(str_end)
-                print(end)
+                print(end, " (END)")
 
-                start = end - 600
-                print(start)
+                start = end - 120
+                print(start, " (START)")
 
+                print(end - start, "DIFF")
                 for page in pagegenerators.RecentChangesPageGenerator(end, start):
-                    print(page.title)
 
-                    ''' nombre edits '''
-                    nbedit = nbedit + 1
-
-                    ''' main '''
                     if str(page.title).find(":") == -1:
-                        nbeditPrincipal = nbeditPrincipal + 1
 
-                        ''' Créations '''
                         try:
                             if (page.exists() == True):
+
+                                print(page.title(), "AVANT TEST")
                                 timestamprev = page.oldest_revision.timestamp
                                 rev = str(timestamprev.year)
-                                if int(page.editTime().month) < 10:
+                                if int(timestamprev.month) < 10:
                                     rev = rev + "0"
                                 rev = rev + str(timestamprev.month)
-                                if int(page.editTime().day) < 10:
+                                if int(timestamprev.day) < 10:
                                     rev = rev + "0"
                                 rev = rev + str(timestamprev.day)
-                                if int(page.editTime().hour) < 10:
+                                if int(timestamprev.hour) < 10:
                                     rev = rev + "0"
                                 rev = rev + str(timestamprev.hour)
-                                if int(page.editTime().minute) < 10:
+                                if int(timestamprev.minute) < 10:
                                     rev = rev + "0"
                                 rev = rev + str(timestamprev.minute)
-                                if int(page.editTime().second) < 10:
+                                if int(timestamprev.second) < 10:
                                     rev = rev + "0"
-                                rev = rev + str(timestamprev.second)
 
-                                print (str(rev))
-                                print(str(start))
-                                if int(rev) > start:
-                                    print("*** CREATION ***")
+                                rev = rev + str(timestamprev.second)
+                                irev = int(rev)
+
+                                print(start, " start")
+                                print(irev, " irev")
+
+                                if irev >= start and len(rev) == 14:
+                                    print(page.title(), "APRES TEST")
                                     nbcreation = nbcreation + 1
+                                    MESSAGE += "[[ " + page.title() + " ]] "
+
                         except ValueError:
                             print ("Oops!")
 
-                MESSAGE = "Au cours des 10 dernières minutes : " + str(nbedit) + " edit(s) sur le #Wiktionnaire"
-                MESSAGE = MESSAGE + ", dont " + str(nbeditPrincipal) + " edit(s) d'entrées"
-                '''MESSAGE = MESSAGE + ", dont " + str(nbcreation) + " création(s) d'entrées"'''
-                MESSAGE = MESSAGE + ", https://fr.wiktionary.org/wiki/Sp%C3%A9cial:Modifications_r%C3%A9centes"
-                print(MESSAGE)
-                api.update_status(MESSAGE)
+                if nbcreation > 0:
+                    print(MESSAGE)
+                    api.update_status(MESSAGE)
 
             str_mnt = siteWiktionnaire.getcurrenttimestamp()
-            mnt = int(str_mnt) - 600
-            print(mnt)
+            MAINTENANT = int(str_mnt) - 120
 
-            if mnt > end:
+            if MAINTENANT >= end:
+                print("Elapse == True")
                 elapse = True
+                MESSAGE = ""
+                nbcreation = 0
             else:
                 elapse = False
+
         except ValueError:
             print("Oops!")
 
-consumer_key = 'XXX'
-consumer_secret = 'XXX'
-access_token = 'XXX-XXX'
-access_token_secret = 'XXX'
+consumer_key = 'xxx'
+consumer_secret = 'xxx'
+access_token = 'xxx'
+access_token_secret = 'xxx'
 
 if __name__ == '__main__':
     GetWiktionaryData()
