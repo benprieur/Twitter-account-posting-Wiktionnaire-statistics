@@ -1,14 +1,12 @@
 import pywikibot
 from pywikibot import pagegenerators
 import tweepy
-from datetime import date
 
 def GetWiktionaryData():
 
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(access_token, access_token_secret)
     api = tweepy.API(auth)
-    print (api.me().name)
     siteWiktionnaire = pywikibot.Site('fr', u'wiktionary')
 
     elapse = True
@@ -20,12 +18,9 @@ def GetWiktionaryData():
 
                 str_end = siteWiktionnaire.getcurrenttimestamp()
                 end = int(str_end)
-                print(end, " (END)")
 
                 start = end - 120
-                print(start, " (START)")
 
-                print(end - start, "DIFF")
                 for page in pagegenerators.RecentChangesPageGenerator(end, start):
 
                     if str(page.title).find(":") == -1:
@@ -54,12 +49,8 @@ def GetWiktionaryData():
                                 rev = rev + str(timestamprev.second)
                                 irev = int(rev)
 
-                                print(start, " start")
-                                print(irev, " irev")
-
                                 if irev >= start and len(rev) == 14:
-                                    print(page.title(), "APRES TEST")
-                                    MESSAGE = "[[ " + page.title() + " ]] https://fr.wiktionary.org/wiki/" + page.title()
+                                    MESSAGE = "[[ " + page.title() + " ]] "
                                     api.update_status(MESSAGE)
 
                         except ValueError:
@@ -83,7 +74,4 @@ access_token_secret = 'xxx'
 
 if __name__ == '__main__':
     GetWiktionaryData()
-
-
-
-
+    
