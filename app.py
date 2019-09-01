@@ -10,11 +10,8 @@ def GetWiktionaryData():
     api = tweepy.API(auth)
     print (api.me().name)
     siteWiktionnaire = pywikibot.Site('fr', u'wiktionary')
-    print(siteWiktionnaire)
 
     elapse = True
-    MESSAGE = ""
-    nbcreation = 0
 
     while True:
         try:
@@ -62,24 +59,17 @@ def GetWiktionaryData():
 
                                 if irev >= start and len(rev) == 14:
                                     print(page.title(), "APRES TEST")
-                                    nbcreation = nbcreation + 1
-                                    MESSAGE += "[[ " + page.title() + " ]] "
+                                    MESSAGE = "[[ " + page.title() + " ]] https://fr.wiktionary.org/wiki/" + page.title()
+                                    api.update_status(MESSAGE)
 
                         except ValueError:
                             print ("Oops!")
-
-                if nbcreation > 0:
-                    print(MESSAGE)
-                    api.update_status(MESSAGE)
 
             str_mnt = siteWiktionnaire.getcurrenttimestamp()
             MAINTENANT = int(str_mnt) - 120
 
             if MAINTENANT >= end:
-                print("Elapse == True")
                 elapse = True
-                MESSAGE = ""
-                nbcreation = 0
             else:
                 elapse = False
 
